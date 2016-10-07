@@ -1,6 +1,6 @@
 {
   "name": "homebridge-homeseer",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Homebridge plugin for HomeSeer™",
   "main": "index.js",
   "repository": "RienduPre/homebridge-homeseer",
@@ -12,5 +12,5 @@
     "homebridge": ">=0.2.0"
   },
   "author": "Robert Klep <Rien@di-Pre.com>",
-  "license": "MIT",
+  "license": "MIT"
 }
