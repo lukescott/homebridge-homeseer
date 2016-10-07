@@ -183,3 +183,7 @@ Configuration sample:
 // - Window                 (obstruction option)
 // - WindowCovering         (obstruction option)
 ```
+
+# Credit
+
+The original HomeKit Shim was done by Jean-Michel Joudrier, who did the majority of the hard work.
