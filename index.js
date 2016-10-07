@@ -191,9 +191,25 @@
 // - Window                 (obstruction option)
 // - WindowCovering         (obstruction option)
 
-var Service = require("HAP-NodeJS").Service;
-var Characteristic = require("HAP-NodeJS").Characteristic;
 var request = require("request");
+var http = require('http');
+var Accessory, Service, Characteristic, UUIDGen;
+
+module.exports = function(homebridge) {
+  // console.log("homebridge API version: " + homebridge.version);
+
+  // Accessory must be created from PlatformAccessory Constructor
+  Accessory = homebridge.platformAccessory;
+
+  // Service and Characteristic are from hap-nodejs
+  Service = homebridge.hap.Service;
+  Characteristic = homebridge.hap.Characteristic;
+  UUIDGen = homebridge.hap.uuid;
+  
+  homebridge.registerAccessory("homebridge-homeseer", "HomeSeer", HomeSeerAccessory, true);  
+  homebridge.registerPlatform("homebridge-homeseer", "HomeSeer", HomeSeerPlatform, true);
+}
+
 
 
 function httpRequest(url, method, callback) {
@@ -726,6 +742,38 @@ HomeSeerAccessory.prototype = {
             }
         }.bind(this));
     },
+    
+    getTargetDoorState: function(callback) {
+        var ref = this.config.stateRef;
+        var url = this.access_url + "request=getstatus&ref=" + ref;
+
+        httpRequest(url, 'GET', function(error, response, body) {
+            if (error) {
+                this.log('HomeSeer get target door state function failed: %s', error.message);
+                callback( error, 0 );
+            }
+            else {
+                var status = JSON.parse( body );
+                var value = status.Devices[0].value;
+	
+                this.log('HomeSeer get target door state function succeeded: value=' + value );
+                if( this.config.stateOpenValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else if( this.config.stateClosedValues.indexOf(value) != -1 )
+                    callback( null, 1 );
+                else if( this.config.stateOpeningValues && this.config.stateOpeningValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else if( this.config.stateClosingValues && this.config.stateClosingValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else if( this.config.stateStoppedValues && this.config.stateStoppedValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else {
+                    this.log( "Error: value for target door state not in stateO0penValues, stateClosedValues, stateOpeningValues, stateClosingValues, stateStoppedValues" );
+                    callback( null, 0 );                
+                }
+            }
+        }.bind(this));
+    },
 
     setTargetDoorState: function(state, callback) {
         var ref = this.config.controlRef;
@@ -803,6 +851,33 @@ HomeSeerAccessory.prototype = {
             }
         }.bind(this));
     },
+    
+       getLockTargetState: function(callback) {
+        var ref = this.config.lockRef;
+        var url = this.access_url + "request=getstatus&ref=" + ref;
+
+        httpRequest(url, 'GET', function(error, response, body) {
+            if (error) {
+                this.log('HomeSeer get lock target state function failed: %s', error.message);
+                callback( error, 3 );
+            }
+            else {
+                var status = JSON.parse( body );
+                var value = status.Devices[0].value;
+	
+                this.log('HomeSeer get lock target state function succeeded: value=' + value );
+                if( this.config.lockUnsecuredValues && this.config.lockUnsecuredValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else if( this.config.lockSecuredValues && this.config.lockSecuredValues.indexOf(value) != -1 )
+                    callback( null, 1 );
+                else if( this.config.lockJammedValues && this.config.lockJammedValues.indexOf(value) != -1 )
+                    callback( null, 0 );
+                else {
+                    callback( null, 0 );                
+                }
+            }
+        }.bind(this));
+      },  
 
     setLockTargetState: function(state, callback) {
         var ref = this.config.lockRef;
@@ -1136,6 +1211,9 @@ HomeSeerAccessory.prototype = {
                 .getCharacteristic(Characteristic.TargetPosition)
                 .on('set', this.setValue.bind(this));
             doorService
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .on('get', this.getTargetDoorState.bind(this));
+            doorService
                 .getCharacteristic(Characteristic.PositionState)
                 .on('get', this.getPositionState.bind(this));
             if( this.config.obstructionRef ) {
@@ -1252,6 +1330,9 @@ HomeSeerAccessory.prototype = {
             lockService
                 .getCharacteristic(Characteristic.LockCurrentState)
                 .on('get', this.getLockCurrentState.bind(this));
+            lockService
+                .getCharacteristic(Characteristic.LockTargetState)
+                .on('get', this.getLockTargetState.bind(this));
             lockService
                 .getCharacteristic(Characteristic.LockTargetState)
                 .on('set', this.setLockTargetState.bind(this));
