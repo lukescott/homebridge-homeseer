@@ -5,19 +5,19 @@
 // Originally created as Shim by Jean-Michel Joudrier
 // V1.0 - 2016/10/04
 // - Initial version
-// 
 //
 //
-// Remember to add platform to config.json. 
 //
-// You can get HomeSeer Device References by clicking a HomeSeer device name, then 
+// Remember to add platform to config.json.
+//
+// You can get HomeSeer Device References by clicking a HomeSeer device name, then
 // choosing the Advanced Tab.
 //
-// The uuid_base parameter is valid for all events and accessories. 
+// The uuid_base parameter is valid for all events and accessories.
 // If you set this parameter to some unique identifier, the HomeKit accessory ID will be based on uuid_base instead of the accessory name.
 // It is then easier to change the accessory name without messing the HomeKit database.
 // You may use the HomeSeer device reference as uuid_base, as long as you don't map 2 HomeKit accessories to the same HomeSeer device.
-// 
+//
 //
 // Example:
 // "platforms": [
@@ -39,7 +39,7 @@
 //
 //         "accessories":[                      // Required - List of Accessories
 //            {
-//              "ref":8,                        // Required - HomeSeer Device Reference (To get it, select the HS Device - then Advanced Tab) 
+//              "ref":8,                        // Required - HomeSeer Device Reference (To get it, select the HS Device - then Advanced Tab)
 //              "type":"Lightbulb",             // Optional - Lightbulb is the default
 //              "name":"My Light",              // Optional - HomeSeer device name is the default
 //              "offValue":"0",                 // Optional - 0 is the default
@@ -56,7 +56,7 @@
 //              "ref":9                         // This is a dimmable Lightbulb by default (HS control values from 0 to 100)
 //            },
 //            {
-//              "ref":58,                       // This is a controllable 
+//              "ref":58,                       // This is a controllable
 //              "type":"Outlet"
 //            },
 //            {
@@ -101,7 +101,7 @@
 //              "controlCoolValue":2,           // Required - HomeSeer device control value for COOL
 //              "controlAutoValue":3,           // Required - HomeSeer device control value for AUTO
 //              "coolingThresholdRef":169,      // Optional - Not-implemented-yet - HomeSeer device reference for your thermostat cooling threshold
-//              "heatingThresholdRef":170       // Optional - Not-implemented-yet - HomeSeer device reference for your thermostat heating threshold               
+//              "heatingThresholdRef":170       // Optional - Not-implemented-yet - HomeSeer device reference for your thermostat heating threshold
 //            },
 //            {
 //              "ref":200,                      // Required - HomeSeer Device Reference of a garage door opener
@@ -205,8 +205,8 @@ module.exports = function(homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   UUIDGen = homebridge.hap.uuid;
-  
-  homebridge.registerAccessory("homebridge-homeseer", "HomeSeer", HomeSeerAccessory, true);  
+
+  homebridge.registerAccessory("homebridge-homeseer", "HomeSeer", HomeSeerAccessory, true);
   homebridge.registerPlatform("homebridge-homeseer", "HomeSeer", HomeSeerPlatform, true);
 }
 
@@ -339,7 +339,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting power state - HomeSeerStatus[%s]=%s", this.name, this.ref, value );
                 if( value == 0 )
                     callback( null, 0 );
@@ -360,20 +360,20 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting binary sensor state - HomeSeerStatus[%s]=%s", this.name, this.ref, value );
                 if( this.config.onValues ) {
                     if( this.config.onValues.indexOf(value) != -1 )
                         callback( null, 1 );
                     else
-                        callback( null, 0 );                    
+                        callback( null, 0 );
                 }
                 else {
                     if( value != 0 )
                         callback( null, 1 );
                     else
                         callback( null, 0 );
-                }        
+                }
             }
         }.bind(this));
     },
@@ -445,7 +445,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting brightness - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.brightnessMaxValue ) {
                     callback( null, Math.round( value * 100 / this.config.brightnessMaxValue ) );
@@ -490,7 +490,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting saturation - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.saturationMaxValue ) {
                     callback( null, Math.round( value * 100 / this.config.saturationMaxValue ) );
@@ -531,7 +531,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting Hue - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 callback( null, Math.round(value/65535*360) ); // Convert 0-65535 to 0-360
             }
@@ -568,7 +568,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting temperature - HomeSeerStatus[%s]=%s", this.name, this.ref, value );
                 if( this.config.temperatureUnit == "F" ) {
                     value = (value-32)*5/9;
@@ -590,7 +590,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting cooling state - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.stateOffValues.indexOf(value) != -1 )
                     callback( null, 0 );
@@ -602,7 +602,7 @@ HomeSeerAccessory.prototype = {
                     callback( null, 3 );
                 else {
                     this.log( "Error: value for thermostat current heating cooling state not in offValues, heatValues, coolValues or autoValues" );
-                    callback( null, 0 );                
+                    callback( null, 0 );
                 }
             }
         }.bind(this));
@@ -645,7 +645,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting target temperature - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.temperatureUnit == "F" ) {
                     value = (value-32)*5/9;
@@ -696,7 +696,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-                var minValue = 10;	
+                var minValue = 10;
 
                 this.log( "%s - Getting battery status - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.batteryThreshold ) {
@@ -723,7 +723,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting door state - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.stateOpenValues.indexOf(value) != -1 )
                     callback( null, 0 );
@@ -737,12 +737,12 @@ HomeSeerAccessory.prototype = {
                     callback( null, 4 );
                 else {
                     this.log( "Error: value for current door state not in stateO0penValues, stateClosedValues, stateOpeningValues, stateClosingValues, stateStoppedValues" );
-                    callback( null, 0 );                
+                    callback( null, 0 );
                 }
             }
         }.bind(this));
     },
-    
+
     getTargetDoorState: function(callback) {
         var ref = this.config.stateRef;
         var url = this.access_url + "request=getstatus&ref=" + ref;
@@ -755,7 +755,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log('HomeSeer get target door state function succeeded: value=' + value );
                 if( this.config.stateOpenValues.indexOf(value) != -1 )
                     callback( null, 0 );
@@ -769,7 +769,7 @@ HomeSeerAccessory.prototype = {
                     callback( null, 0 );
                 else {
                     this.log( "Error: value for target door state not in stateO0penValues, stateClosedValues, stateOpeningValues, stateClosingValues, stateStoppedValues" );
-                    callback( null, 0 );                
+                    callback( null, 0 );
                 }
             }
         }.bind(this));
@@ -810,18 +810,18 @@ HomeSeerAccessory.prototype = {
                 else {
                     var status = JSON.parse( body );
                     var value = status.Devices[0].value;
-	
+
                     this.log( "%s - Getting obstruction state - HomeSeerStatus[%s]=%s", this.name, ref, value );
                     if( this.config.obstructionValues && this.config.obstructionValues.indexOf(value) != -1 )
                         callback( null, 1 );
                     else {
-                        callback( null, 0 );                
+                        callback( null, 0 );
                     }
                 }
             }.bind(this));
         }
-        else {       
-            callback( null, 0 );                
+        else {
+            callback( null, 0 );
         }
     },
 
@@ -837,7 +837,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	  
+
                 this.log( "%s - Getting lock state - HomeSeerStatus[%s]=%s", this.name, ref, value );
                 if( this.config.lockUnsecuredValues && this.config.lockUnsecuredValues.indexOf(value) != -1 )
                     callback( null, 0 );
@@ -846,12 +846,12 @@ HomeSeerAccessory.prototype = {
                 else if( this.config.lockJammedValues && this.config.lockJammedValues.indexOf(value) != -1 )
                     callback( null, 2 );
                 else {
-                    callback( null, 3 );                
+                    callback( null, 3 );
                 }
             }
         }.bind(this));
     },
-    
+
        getLockTargetState: function(callback) {
         var ref = this.config.lockRef;
         var url = this.access_url + "request=getstatus&ref=" + ref;
@@ -864,7 +864,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log('HomeSeer get lock target state function succeeded: value=' + value );
                 if( this.config.lockUnsecuredValues && this.config.lockUnsecuredValues.indexOf(value) != -1 )
                     callback( null, 0 );
@@ -873,11 +873,11 @@ HomeSeerAccessory.prototype = {
                 else if( this.config.lockJammedValues && this.config.lockJammedValues.indexOf(value) != -1 )
                     callback( null, 0 );
                 else {
-                    callback( null, 0 );                
+                    callback( null, 0 );
                 }
             }
         }.bind(this));
-      },  
+      },
 
     setLockTargetState: function(state, callback) {
         var ref = this.config.lockRef;
@@ -912,7 +912,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting security system state - HomeSeerStatus[%s]=%s", this.name, this.ref, value );
                 if( this.config.armedStayValues && this.config.armedStayValues.indexOf(value) != -1 )
                     callback( null, 2 );
@@ -925,11 +925,11 @@ HomeSeerAccessory.prototype = {
                 else if( this.config.alarmValues && this.config.alarmValues.indexOf(value) != -1 )
                     callback( null, 4 );
                 else
-                    callback( null, 0 );                
+                    callback( null, 0 );
             }
         }.bind(this));
     },
-    
+
     getSecuritySystemTargerState: function(callback) {
         var url = this.access_url + "request=getstatus&ref=" + this.ref;
 
@@ -941,7 +941,7 @@ HomeSeerAccessory.prototype = {
             else {
                 var status = JSON.parse( body );
                 var value = status.Devices[0].value;
-	
+
                 this.log( "%s - Getting security system state - HomeSeerStatus[%s]=%s", this.name, this.ref, value );
                 if( this.config.armedStayValues && this.config.armedStayValues.indexOf(value) != -1 )
                     callback( null, 2 );
@@ -954,7 +954,7 @@ HomeSeerAccessory.prototype = {
                 else if( this.config.alarmValues && this.config.alarmValues.indexOf(value) != -1 )
                     callback( null, 4 );
                 else
-                    callback( null, 0 );                
+                    callback( null, 0 );
             }
         }.bind(this));
     },
@@ -1007,7 +1007,7 @@ HomeSeerAccessory.prototype = {
                 .getCharacteristic(Characteristic.On)
                 .on('set', this.setPowerState.bind(this))
                 .on('get', this.getPowerState.bind(this));
-    
+
             if( this.config.can_dim == null || this.config.can_dim == true ) {
                 if( this.config.brightnessRef == null ) {
                     this.config.brightnessRef = this.config.ref;
@@ -1041,6 +1041,17 @@ HomeSeerAccessory.prototype = {
                 .getCharacteristic(Characteristic.On)
                 .on('set', this.setPowerState.bind(this))
                 .on('get', this.getPowerState.bind(this));
+
+            if( this.config.can_dim == null || this.config.can_dim == true ) {
+                if( this.config.brightnessRef == null ) {
+                    this.config.brightnessRef = this.config.ref;
+                }
+                fanService
+                    .addCharacteristic( Characteristic.RotationSpeed )
+                    .on('set', this.setBrightness.bind(this))
+                    .on('get', this.getBrightness.bind(this));
+            }
+
             services.push( fanService );
             break;
             }
@@ -1062,7 +1073,7 @@ HomeSeerAccessory.prototype = {
             services.push( outletService );
             break;
             }
-        case "PowerConsumption": {      
+        case "PowerConsumption": {
         	var PowerConsumptionService = new Service.PowerConsumption();
             PowerConsumptionService
                 .getCharacteristic(Characteristic.CurrentPowerConsumption)
@@ -1360,7 +1371,7 @@ HomeSeerAccessory.prototype = {
                 .getCharacteristic(Characteristic.On)
                 .on('set', this.setPowerState.bind(this))
                 .on('get', this.getPowerState.bind(this));
-    
+
             lightbulbService
                 .addCharacteristic( Characteristic.Brightness )
                 .on('set', this.setBrightness.bind(this))
@@ -1438,7 +1449,7 @@ HomeSeerEvent.prototype = {
 
         var switchService = new Service.Switch();
         switchService
-            .getCharacteristic(Characteristic.On) 
+            .getCharacteristic(Characteristic.On)
             .on('set', this.launchEvent.bind(this));
         services.push( switchService );
 
