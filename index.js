@@ -658,7 +658,7 @@ HomeSeerAccessory.prototype = {
     setThermostatTargetTemperature: function(temperature, callback) {
         var value = temperature;
         if( this.config.temperatureUnit == "F" ) {
-            value = temperature*9/5+32;
+            value = Math.round(temperature*9/5+32);
         }
 
         var ref = this.config.setPointRef;
