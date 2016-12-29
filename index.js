@@ -192,6 +192,7 @@
 // - WindowCovering         (obstruction option)
 
 var request = require("request");
+var requestRetry = require("requestretry");
 var http = require('http');
 var Accessory, Service, Characteristic, UUIDGen;
 
@@ -210,8 +211,6 @@ module.exports = function(homebridge) {
   homebridge.registerPlatform("homebridge-homeseer", "HomeSeer", HomeSeerPlatform, true);
 }
 
-
-
 function httpRequest(url, method, callback) {
     request({
       url: url,
@@ -222,7 +221,15 @@ function httpRequest(url, method, callback) {
     })
 }
 
-
+function httpRequestRetry(url, method, callback) {
+    requestRetry({
+      url: url,
+      method: method
+    },
+    function (error, response, body) {
+      callback(error, response, body)
+    })
+}
 
 function HomeSeerPlatform(log, config){
     this.log = log;
@@ -250,7 +257,7 @@ HomeSeerPlatform.prototype = {
                 refList = refList + ",";
         }
         var url = this.config["host"] + "/JSON?request=getstatus&ref=" + refList;
-        httpRequest( url, "GET", function(error, response, body) {
+        httpRequestRetry( url, "GET", function(error, response, body) {
             if (error) {
                 this.log('HomeSeer status function failed: %s', error.message);
                 callback( foundAccessories );
